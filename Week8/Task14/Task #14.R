@@ -1,0 +1,54 @@
+#Load in packages
+library(stringr)
+library(readr)
+library(downloader)
+library(tidyverse)
+
+#load in the data from github
+#First load in Random Letters data
+random_letters <- read_lines("https://github.com/WJC-Data-Science/DTS350/blob/master/randomletters.txt")
+
+#Now load in Random Numbers data
+random_numbers <- read_lines("https://github.com/WJC-Data-Science/DTS350/blob/master/randomletters_wnumbers.txt")
+
+#Now we have to decipher the Hidden Message 
+new_message <- c()
+for (i in seq(1, str_length(random_letters)/1700)) {
+  if (i == 1) {
+    new_message <- str_c(new_message, str_sub(random_letters, start = 1, end = 1))
+  }
+  new_message <- str_c(new_message, str_sub(random_letters, start = i*1700, end = i*1700))
+  if (str_sub(random_letters, i*1700, end = i*1700) == ".") {
+    break
+  }
+}
+new_message
+
+#Find and Change the Numbers to find the code.
+new_message <- unlist(str_extract_all(random_numbers, ("(\\d)+")))
+message <- c()
+
+for (i in seq(1,length(new_message))) {
+  message <- append(message,letters[as.integer(new_message[i])])
+}
+message <- paste(message,collapse = " ")
+message
+
+#Find the longest palindrome.
+str_extract_all(random_letters, "(.)(.)(.)(.)\\4\\3\\2\\1")
+
+#Find the Longest string of vowels
+string_vowels <- c("0")
+no_spaces_periods <- random_letters %>%
+  str_remove_all(" ") %>%
+  str_remove_all("\\.")
+
+vowels <- unlist(str_extract_all(no_spaces_periods,"([aeiou])+"))
+
+for (i in seq(1,length(vowels))) {
+  if (str_length(vowels[i]) > str_length(string_vowels[length(string_vowels)])) {
+    string_vowels <- vowels[i]
+  }
+}
+string_vowels
+
