@@ -1,0 +1,91 @@
+---
+title: 'Task #18B'
+author: "Blayne Chapman"
+date: "11/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+```
+
+
+```{r}
+#My Business
+#Business 1 = Garmin Ltd GRMN
+#Business 2 = Apple Inc APPL
+#Business 3 = Microsoft Corporation MSFT
+#Friends Business
+#Business 1 = Alphabet inc GOOGL
+#Business 2 = Dell Technologies DELL
+#Business 3 =  Intel Corporation INTC
+ 
+#Load in Packages
+install.packages("timetk")
+library(tidyquant) 
+library(tidyverse) 
+library(lubridate)
+library(dygraphs)
+library(timetk)
+library(future)
+
+```
+```{r}
+#Make the timeframe. 1 year
+start <- today() - years(1)
+end<- today()
+
+```
+
+```{r}
+#load in My Business's 
+(Garmin <- tq_get("GRMN", get = "stock.price", from = start, to = end))
+(Apple <- tq_get("AAPL", get = "stock.price", from = start, to = end))
+(Microsoft <- tq_get("MSFT", get = "stock.price", from = start, to = end))
+
+#load in Friends Business's
+(Google <- tq_get("GOOGL", get = "stock.price", from = start, to = end))
+(Dell <- tq_get("DELL", get = "stock.price", from = start, to = end))
+(Intel <- tq_get("INTC", get = "stock.price", from = start, to = end))
+
+#plug all of this data into one.
+all_stocks <- tq_get(c("GRMN","AAPL","MSFT","GOOGL","DELL","INTC"), get = "stock.price", from = start, to = end)
+head(all_stocks)
+tail(all_stocks)
+str(all_stocks)
+```
+
+```{r}
+#Now that we compare them lets build graphs to show who won.
+#How do i Adjust the it so the graph shoes different colors for Microsoft and Dell?
+who_won <- all_stocks %>%
+  select(symbol, date, adjusted)%>%
+  pivot_wider(names_from = symbol, values_from = adjusted)%>%
+  tk_xts(date_var = date)
+
+dygraph(who_won)
+```
+
+```{r}
+#Google  was the highest one and seemd to have the most increase over time.
+#Creat a graph for Google
+all_stocks %>%
+  filter(symbol == "GOOGL")%>%
+  ggplot(aes(x = date, y = adjusted)) +
+  geom_line() +
+  labs(title = "Winning Chart", 
+       y = "Closing Price", x = "Time") + 
+  coord_x_date(xlim = c(start, end)) +
+  theme_tq()
+#I choose to use a line graph just to show how google has grown over time 
+#you can tell in that one year how much growth google had, there stock prices went up 
+# a little more than a thousand in one year is very impressive.
+#So in the Contest i technically did not lose to mu friend because he spent more 
+#Money then i did. When chooseing our companies we dcided we wnated to find 
+#the best Technologie companies, we found that google has been the most successful.
+```
+
